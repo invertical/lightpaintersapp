@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { ChevronDown, ChevronUp, RotateCcw, Search } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, Map as MapIcon, RotateCcw, Search } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -90,7 +90,10 @@ function SearchForm({ options }: { options: ReturnType<typeof useFilterOptions> 
 
   return (
     <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.page}>
-      <Heading>Find artists</Heading>
+      <View style={styles.titleRow}>
+        <Heading>Find artists</Heading>
+        <Button label="Map search" icon={MapIcon} size="sm" variant="secondary" onPress={() => router.push('/artists/map')} />
+      </View>
       <View style={styles.form}>
         <Field
           label="Name"
@@ -194,6 +197,7 @@ function Results({ params, options }: { params: Params; options: ReturnType<type
 
 const styles = StyleSheet.create({
   page: { padding: Spacing.lg, gap: Spacing.lg, paddingBottom: Spacing.xxl },
+  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.md },
   form: {
     gap: Spacing.md,
     backgroundColor: Colors.card,
