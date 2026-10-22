@@ -43,7 +43,7 @@ export default function NewEvent() {
   const { token, user } = useSession();
   const types = useApi<{ data: EventType[] }>('/event-types');
   const countries = useApi<{ data: Country[] }>('/countries');
-  const myOrgs = useApi<Page<Org>>('/me/groups?relation=manager&perPage=100');
+  const myOrgs = useApi<Page<Org>>('/me/groups?relation=managing&perPage=100');
   const zones = useMemo(() => zoneOptions(), []);
 
   const [typeId, setTypeId] = useState<number | null>(null);
@@ -108,6 +108,10 @@ export default function NewEvent() {
     if ((f.endDate || f.endTime) && (!DATE.test(f.endDate) || !TIME.test(f.endTime))) {
       return setProblem('Choose both the end date and time, or neither.');
     }
+    // The website's rules: online events need the link to join; others need a city.
+    if (online && !f.onlineLink.trim()) return setProblem('Add the link to join the online event.');
+    if (!online && !f.city.trim()) return setProblem('Add the city where it happens.');
+    if (!countryId) return setProblem('Choose a country.');
     setBusy(true);
     setError(null);
     try {

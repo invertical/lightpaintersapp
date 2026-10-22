@@ -24,15 +24,19 @@ export function shortDate(iso: string | null | undefined) {
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', ...(sameYear ? {} : { year: 'numeric' }) });
 }
 
-/** "Sat, Nov 2 · 7:00 PM", or a date range when it spans days. */
-export function eventWhen(startsAt: string | null, endsAt: string | null) {
+/**
+ * "Sat, Nov 2 · 7:00 PM", or a date range when it spans days. In the event's own time
+ * zone when it has one (a workshop in Denver reads as Denver time wherever you are).
+ */
+export function eventWhen(startsAt: string | null, endsAt: string | null, timeZone?: string | null) {
   if (!startsAt) return '';
+  const zone = timeZone ? { timeZone } : {};
+  const day = (d: Date) => d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', ...zone });
+  const time = (d: Date) => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', ...zone });
   const start = new Date(startsAt);
-  const day = (d: Date) => d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-  const time = (d: Date) => d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
   if (!endsAt) return `${day(start)} · ${time(start)}`;
   const end = new Date(endsAt);
-  if (start.toDateString() === end.toDateString()) return `${day(start)} · ${time(start)}–${time(end)}`;
+  if (day(start) === day(end)) return `${day(start)} · ${time(start)}–${time(end)}`;
   return `${day(start)} – ${day(end)}`;
 }
 

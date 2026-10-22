@@ -5,14 +5,14 @@ import { Column } from '@/components/chrome';
 import type { EventType } from '@/lib/types';
 import { useApi } from '@/lib/use-api';
 
-/** Events: workshops, meetups, performances and opportunities, and Submit an event. */
+/** Events: its four kinds (workshops, meetups, performances, contests and calls for entries), and Submit an event. */
 export default function Events() {
   const types = useApi<{ data: EventType[] }>('/event-types');
   return (
     <Column>
       <CategoryList
         title="Events"
-        lede="Workshops, meetups, performances and opportunities around the world."
+        lede="Workshops, meetups, performances, contests and calls for entries around the world."
         submitLabel="Submit an event"
         onSubmit={() => router.push('/events/new')}
         categories={(types.data?.data ?? []).map((t) => ({

@@ -163,10 +163,14 @@ export type EventItem = {
   imageUrl: string | null;
   org: OrgSummary | null;
   pageUrl: string;
-  /** Requested. */
   subtitle?: string | null;
   summary?: string | null;
+  timeZone?: string | null;
   online?: boolean;
+  onlineLink?: string | null;
+  hostedBy?: string | null;
+  cost?: string | null;
+  /** The event's own site (http/https), or null. */
   url?: string | null;
 };
 

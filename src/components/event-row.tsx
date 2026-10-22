@@ -23,7 +23,7 @@ export function EventRow({ event }: { event: EventItem }) {
         </View>
       )}
       <View style={styles.text}>
-        <Text style={styles.when}>{eventWhen(event.startsAt, event.endsAt)}</Text>
+        <Text style={styles.when}>{eventWhen(event.startsAt, event.endsAt, event.timeZone)}</Text>
         <Text style={styles.name} numberOfLines={2}>
           {event.name}
         </Text>
