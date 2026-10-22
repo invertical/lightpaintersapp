@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, ErrorLine, Field, TextButton } from '@/components/ui';
 import { Colors, Font, Spacing } from '@/constants/theme';
 import { apiFetch, errorMessage } from '@/lib/api';
-import { useSession } from '@/lib/session';
+import { realEmail, useSession } from '@/lib/session';
 
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -13,14 +13,16 @@ const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * Every account needs at least one confirmed email (Dan). Shown after signing in when the
  * account has none (phone, username or social sign-up) or hasn't confirmed it yet.
  *
- * No email: POST /me/emails {email} sends a code, /me/emails/confirm {email, code} adds it.
+ * No email (or only the @no-email.invalid stand-in): POST /me/emails {email} sends a code,
+ * /me/emails/confirm {email, code} adds it as the confirmed primary.
  * Unconfirmed: POST /me/email-verification sends a code, /confirm {code} confirms it.
  */
 export default function ConfirmEmail() {
   const { user, token, refreshUser, signOut } = useSession();
-  const hasEmail = !!user?.email;
+  const existing = realEmail(user);
+  const hasEmail = !!existing;
   const [email, setEmail] = useState('');
-  const [sentTo, setSentTo] = useState<string | null>(hasEmail ? user!.email : null);
+  const [sentTo, setSentTo] = useState<string | null>(existing);
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

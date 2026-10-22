@@ -12,7 +12,7 @@ import { Colors, Font, Radius, Spacing } from '@/constants/theme';
 import { apiUpload, errorMessage, fieldError, type Page } from '@/lib/api';
 import { openUrl, pickPhotos } from '@/lib/format';
 import { appendFile, type PickedFile } from '@/lib/form-file';
-import { useSession } from '@/lib/session';
+import { realEmail, useSession } from '@/lib/session';
 import type { Country, EventItem, EventType, Org } from '@/lib/types';
 import { useApi } from '@/lib/use-api';
 
@@ -71,7 +71,7 @@ export default function NewEvent() {
     facebook: '',
     youtube: '',
     contactName: user ? `${user.firstName} ${user.lastName}`.trim() : '',
-    contactEmail: user?.email ?? '',
+    contactEmail: realEmail(user) ?? '',
     contactPhone: '',
   });
   const [timeZone, setTimeZone] = useState(deviceZone());

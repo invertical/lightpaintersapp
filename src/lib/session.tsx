@@ -88,6 +88,15 @@ export function useUser() {
   return useSession().user;
 }
 
+/**
+ * The account's real email, or null. An account made without one (phone, username or
+ * social sign-up) holds a stand-in address on @no-email.invalid, which is never mailed.
+ */
+export function realEmail(user: User | null) {
+  const email = user?.email;
+  return email && !email.toLowerCase().endsWith('@no-email.invalid') ? email : null;
+}
+
 function deviceName() {
   return Device.deviceName ?? Device.modelName ?? `LightPainters ${Platform.OS}`;
 }
@@ -167,7 +176,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [token]);
 
   // Unknown (offline at startup) counts as fine: the gate shows once /me answers.
-  const needsEmail = !!user && (!user.email || !user.emailVerified);
+  const needsEmail = !!user && (!realEmail(user) || !user.emailVerified);
 
   const value = useMemo(
     () => ({ token, user, isLoading, needsEmail, advanceSignIn, signOut, refreshUser }),
