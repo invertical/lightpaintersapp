@@ -1,23 +1,33 @@
 {
   "expo": {
-    "name": "lightpaintersapp",
-    "slug": "lightpaintersapp",
+    "name": "LightPainters",
+    "slug": "lightpainters",
+    "owner": "lightpainters",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "lightpaintersapp",
-    "userInterfaceStyle": "automatic",
+    "scheme": "lightpainters",
+    "userInterfaceStyle": "dark",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "com.lightpainters.app",
+      "icon": "./assets/expo.icon",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#14162C",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.lightpainters.app",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static",
@@ -28,15 +38,36 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#14162C",
+          "image": "./assets/images/logo.png",
+          "imageWidth": 96
         }
-      ]
+      ],
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "LightPainters uses your photos so you can add them to your gallery and feed posts.",
+          "cameraPermission": "LightPainters uses the camera so you can photograph your light painting for a post."
+        }
+      ],
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "91a58b5e-f2a2-4894-8097-66e999dde3b2"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/91a58b5e-f2a2-4894-8097-66e999dde3b2"
     }
   }
 }
