@@ -5,21 +5,25 @@ import { Modal, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'r
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { IconButton } from '@/components/ui';
-import { Colors, Font, MaxContentWidth, Spacing } from '@/constants/theme';
+import { Colors, Font, Spacing } from '@/constants/theme';
 import { pictureUrl } from '@/lib/format';
+import { useMeasuredWidth } from '@/lib/use-measured-width';
 import type { Picture } from '@/lib/types';
 
-/** A three-across grid of square pictures; a tap opens the lightbox at that picture. */
+/**
+ * A three-across grid of square pictures; a tap opens the lightbox at that picture. Tiles
+ * are sized from the grid's own measured width, not the window's, so a scrollbar (web) or
+ * any inset can never push the third column onto the next row.
+ */
 export function PictureGrid({ pictures, columns = 3 }: { pictures: Picture[]; columns?: number }) {
-  const { width: window } = useWindowDimensions();
-  const width = Math.min(window, MaxContentWidth);
+  const { width, onLayout } = useMeasuredWidth();
   const gap = 2;
-  const size = (width - gap * (columns - 1)) / columns;
+  const size = Math.floor((width - gap * (columns - 1)) / columns);
   const [open, setOpen] = useState<number | null>(null);
 
   return (
     <>
-      <View style={[styles.grid, { gap }]}>
+      <View style={[styles.grid, { gap }]} onLayout={onLayout}>
         {pictures.map((p, i) => (
           <Pressable
             key={p.id}

@@ -2,19 +2,20 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import { Check, LayoutDashboard, Plus } from 'lucide-react-native';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Chrome } from '@/components/chrome';
 import { EventRow } from '@/components/event-row';
 import { LinkChips } from '@/components/link-chips';
 import { PersonRow } from '@/components/person-row';
 import { Avatar, Button, ErrorLine, ErrorState, Loading, ScreenTitle, ui } from '@/components/ui';
-import { Colors, Font, MaxContentWidth, Spacing } from '@/constants/theme';
+import { Colors, Font, Spacing } from '@/constants/theme';
 import { apiFetch, errorMessage, type Page } from '@/lib/api';
 import { openUrl } from '@/lib/format';
 import { useSession } from '@/lib/session';
 import type { EventItem, Org, Person } from '@/lib/types';
 import { useApi } from '@/lib/use-api';
+import { useMeasuredWidth } from '@/lib/use-measured-width';
 
 /**
  * An org, as on its website page: the image, name, members and followers, its links,
@@ -42,8 +43,7 @@ export default function OrgScreen() {
 
 function OrgBody({ org, onChange }: { org: Org; onChange: (org: Org) => void }) {
   const { token } = useSession();
-  const { width: window } = useWindowDimensions();
-  const width = Math.min(window, MaxContentWidth);
+  const { width, onLayout } = useMeasuredWidth();
   const events = useApi<Page<EventItem>>(`/events?orgId=${org.id}&perPage=20`);
   // 404 when the org hides its members: then the section is left out.
   const members = useApi<Page<Person>>(`/groups/${encodeURIComponent(org.slug)}/members?perPage=100`);
@@ -75,6 +75,7 @@ function OrgBody({ org, onChange }: { org: Org; onChange: (org: Org) => void }) 
 
   return (
     <ScrollView contentContainerStyle={styles.scroll}>
+      <View onLayout={onLayout} />
       {hero ? (
         <Image
           source={{ uri: hero }}

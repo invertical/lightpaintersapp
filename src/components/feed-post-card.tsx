@@ -2,11 +2,12 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { MessageSquare } from 'lucide-react-native';
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Avatar } from '@/components/ui';
-import { Colors, Font, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { Colors, Font, Radius, Spacing } from '@/constants/theme';
 import { pictureUrl, timeAgo } from '@/lib/format';
+import { useMeasuredWidth } from '@/lib/use-measured-width';
 import type { FeedPost, Person, Picture } from '@/lib/types';
 
 export function openProfile(person: Pick<Person, 'username'>) {
@@ -36,14 +37,15 @@ export function AuthorRow({ person, when, size = 40 }: { person: Person; when?: 
 }
 
 /** One or more pictures, full width; several swipe sideways with a counter. */
-export function PictureCarousel({ pictures, width }: { pictures: Picture[]; width: number }) {
+export function PictureCarousel({ pictures }: { pictures: Picture[] }) {
+  const { width, onLayout } = useMeasuredWidth();
   const [index, setIndex] = useState(0);
   if (pictures.length === 0) return null;
   const heightFor = (p: Picture) => Math.min(width * 1.25, (width * (p.height || 1)) / (p.width || 1));
   const height = Math.max(...pictures.map(heightFor));
 
   return (
-    <View>
+    <View onLayout={onLayout}>
       <FlatList
         data={pictures}
         horizontal
@@ -75,8 +77,6 @@ export function PictureCarousel({ pictures, width }: { pictures: Picture[]; widt
  * comment count (to the post and its comments). `full` shows the whole text.
  */
 export function FeedPostCard({ post, full = false }: { post: FeedPost; full?: boolean }) {
-  const { width: window } = useWindowDimensions();
-  const width = Math.min(window, MaxContentWidth);
   const open = () => router.push({ pathname: '/feed/[id]', params: { id: String(post.id) } });
   const tags = post.tags.filter((t) => t.status === 'approved');
 
@@ -85,7 +85,7 @@ export function FeedPostCard({ post, full = false }: { post: FeedPost; full?: bo
       <View style={styles.head}>
         <AuthorRow person={post.author} when={post.createdAt} />
       </View>
-      <PictureCarousel pictures={post.pictures} width={width} />
+      <PictureCarousel pictures={post.pictures} />
       <Pressable onPress={full ? undefined : open} disabled={full} style={styles.body} accessibilityRole={full ? undefined : 'link'}>
         {post.subject ? <Text style={styles.subject}>{post.subject}</Text> : null}
         {post.text ? (

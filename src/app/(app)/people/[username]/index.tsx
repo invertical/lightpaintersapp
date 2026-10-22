@@ -2,19 +2,20 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { BadgeCheck, MapPin, MessageCircle, Pencil, X } from 'lucide-react-native';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Chrome } from '@/components/chrome';
 import { LinkChips } from '@/components/link-chips';
 import { Lightbox, PictureGrid } from '@/components/picture-grid';
 import { Avatar, Button, Chip, ErrorLine, ErrorState, IconButton, Loading, ScreenTitle, ui } from '@/components/ui';
-import { Colors, Font, MaxContentWidth, Radius, Spacing } from '@/constants/theme';
+import { Colors, Font, Radius, Spacing } from '@/constants/theme';
 import { apiFetch, errorMessage, type Page } from '@/lib/api';
 import { memberSince, pictureUrl } from '@/lib/format';
 import { useSession } from '@/lib/session';
 import type { Chat, Picture, Profile, TagApplication } from '@/lib/types';
 import { useApi } from '@/lib/use-api';
+import { useMeasuredWidth } from '@/lib/use-measured-width';
 
 /**
  * A profile, after the website's phone layout (lightpainters.com/{username}): the lead
@@ -43,8 +44,7 @@ export default function ProfileScreen() {
 
 function ProfileBody({ profile: p, pictures, picturesLoading }: { profile: Profile; pictures: Picture[]; picturesLoading: boolean }) {
   const { user, token } = useSession();
-  const { width: window } = useWindowDimensions();
-  const width = Math.min(window, MaxContentWidth);
+  const { width, onLayout } = useMeasuredWidth();
   const mine = p.isMe ?? user?.id === p.id;
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [tagsOpen, setTagsOpen] = useState(false);
@@ -73,6 +73,7 @@ function ProfileBody({ profile: p, pictures, picturesLoading }: { profile: Profi
 
   return (
     <ScrollView contentContainerStyle={styles.scroll}>
+      <View onLayout={onLayout} />
       {lead ? (
         <Pressable accessibilityRole="imagebutton" accessibilityLabel={`View ${p.name}'s pictures`} onPress={() => setLightbox(0)}>
           <Image
