@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Chrome } from '@/components/chrome';
-import { Button, ErrorLine, Field, ScreenTitle, ui } from '@/components/ui';
+import { Button, Card, ErrorLine, Field, ScreenTitle, ui } from '@/components/ui';
 import { Colors, Font, Radius, Spacing } from '@/constants/theme';
 import { apiUpload, errorMessage } from '@/lib/api';
 import { pickPhotos } from '@/lib/format';
@@ -21,7 +21,7 @@ const MAX_PICTURES = 10;
  * website's feed composer (Livewire\Feed\Feed::post). Words or a picture, at least one.
  */
 export default function NewPost() {
-  const { token } = useSession();
+  const { token, user } = useSession();
   const [text, setText] = useState('');
   const [pictures, setPictures] = useState<PickedFile[]>([]);
   const [isAdult, setIsAdult] = useState(false);
@@ -51,6 +51,19 @@ export default function NewPost() {
       setError(errorMessage(e));
       setBusy(false);
     }
+  }
+
+  if (user?.canPostToFeed === false) {
+    return (
+      <Chrome>
+        <ScreenTitle title="New post" />
+        <View style={ui.page}>
+          <Card>
+            <Text style={ui.body}>Posting to the feed is for LightPainters members.</Text>
+          </Card>
+        </View>
+      </Chrome>
+    );
   }
 
   return (

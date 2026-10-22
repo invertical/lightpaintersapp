@@ -19,8 +19,8 @@ export type User = {
   showsAdultContent: boolean;
   isAdmin: boolean;
   impersonator: { id: number; name: string } | null;
-  /** Requested. */
-  profileGalleryId?: number | null;
+  canPostToFeed?: boolean;
+  canMessageMembers?: boolean;
   canSubmitLinks?: boolean;
   canAddEvents?: boolean;
   canCreateOrgs?: boolean;

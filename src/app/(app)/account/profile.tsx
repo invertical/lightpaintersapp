@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { ArrowDown, ArrowUp, Check, Pencil, Trash2 } from 'lucide-react-native';
+import { Check, Pencil, Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -207,10 +207,14 @@ function Location({ profile, onSaved }: { profile: MyProfile; onSaved: (p: MyPro
   );
 }
 
-type MyLink = { id: number; typeId: number | null; type: string; url: string };
-type LinkType = { id: number; name: string };
+/** `value` is what the person typed (a handle, say); `url` is where it resolves. */
+type MyLink = { id: number; typeId: number | null; type: string; value: string; url: string };
+type LinkType = { id: number; name: string; instructions?: string | null };
 
-/** /me/links (requested of the API): add, edit, remove and reorder, up to 20. */
+/**
+ * /me/links: add, edit and remove, up to 20. Listed in the website's order (by type);
+ * there is no custom order.
+ */
 function Links() {
   const { token } = useSession();
   const links = useApi<{ data: MyLink[]; meta?: { types?: LinkType[] } }>('/me/links');
@@ -249,27 +253,29 @@ function Links() {
 
   const remove = (id: number) => call(() => apiFetch(`/me/links/${id}`, { method: 'DELETE', token }));
 
-  const move = (index: number, by: number) => {
-    const ids = items.map((l) => l.id);
-    const [moved] = ids.splice(index, 1);
-    ids.splice(index + by, 0, moved);
-    links.setData((d) => (d ? { ...d, data: ids.map((id) => items.find((l) => l.id === id)!) } : d));
-    call(() => apiFetch('/me/links/order', { method: 'PUT', body: { ids }, token }));
-  };
-
   if (links.error) return <ErrorState error={links.error} onRetry={links.reload} />;
   if (!links.data) return <Loading />;
 
   const typeOptions = types.map((t) => ({ value: t.id, label: t.name }));
+  const instructions = (id: number | null) => types.find((t) => t.id === id)?.instructions ?? undefined;
 
   return (
     <>
-      <Text style={ui.muted}>Your website and social accounts, shown on your profile in this order.</Text>
-      {items.map((link, i) =>
+      <Text style={ui.muted}>Your website and social accounts, shown on your profile.</Text>
+      {items.map((link) =>
         editing?.id === link.id ? (
           <View key={link.id} style={styles.linkEdit}>
             <Select label="Type" value={editing.typeId} options={typeOptions} onChange={(v) => setEditing({ ...editing, typeId: v })} />
-            <Field label="Address" value={editing.url} onChangeText={(v) => setEditing({ ...editing, url: v })} autoCapitalize="none" keyboardType="url" />
+            <Field
+              label="Address"
+              value={editing.url}
+              onChangeText={(v) => setEditing({ ...editing, url: v })}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="url"
+              hint={instructions(editing.typeId)}
+              error={fieldError(error, 'url')}
+            />
             <View style={styles.row}>
               <Button label="Save" icon={Check} size="sm" onPress={saveEdit} busy={busy} />
               <Button label="Cancel" size="sm" variant="secondary" onPress={() => setEditing(null)} />
@@ -283,15 +289,13 @@ function Links() {
                 {link.url}
               </Text>
             </View>
-            <IconButton icon={ArrowUp} label="Move up" size={18} color={i === 0 ? Colors.border : Colors.muted} onPress={() => i > 0 && move(i, -1)} />
             <IconButton
-              icon={ArrowDown}
-              label="Move down"
+              icon={Pencil}
+              label="Edit link"
               size={18}
-              color={i === items.length - 1 ? Colors.border : Colors.muted}
-              onPress={() => i < items.length - 1 && move(i, 1)}
+              color={Colors.muted}
+              onPress={() => setEditing({ id: link.id, typeId: link.typeId, url: link.value })}
             />
-            <IconButton icon={Pencil} label="Edit link" size={18} color={Colors.muted} onPress={() => setEditing({ id: link.id, typeId: link.typeId, url: link.url })} />
             <IconButton icon={Trash2} label="Remove link" size={18} color={Colors.danger} onPress={() => remove(link.id)} />
           </View>
         )
@@ -309,7 +313,8 @@ function Links() {
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="url"
-            error={fieldError(error, 'url')}
+            hint={instructions(typeId)}
+            error={editing ? undefined : fieldError(error, 'url')}
           />
           <Button label="Add link" size="sm" onPress={add} busy={busy} disabled={!url.trim()} />
         </View>

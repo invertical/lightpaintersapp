@@ -11,7 +11,7 @@ import { apiFetch, apiUpload, errorMessage, type Page } from '@/lib/api';
 import { pickPhotos, pictureUrl } from '@/lib/format';
 import { appendFile } from '@/lib/form-file';
 import { useSession } from '@/lib/session';
-import type { Gallery, MyProfile, Picture } from '@/lib/types';
+import type { Gallery, MyProfile, Picture, Profile } from '@/lib/types';
 import { useApi } from '@/lib/use-api';
 
 function confirm(title: string, onYes: () => void) {
@@ -26,14 +26,16 @@ function confirm(title: string, onYes: () => void) {
 }
 
 /**
- * Manage gallery: the pictures on my profile (my portfolio gallery). Add, caption, mark
- * adult, reorder, delete, and choose the profile picture.
+ * Manage gallery: the pictures on my profile (my portfolio gallery, the website's
+ * /account/pictures). Add, caption, mark adult, reorder, delete, and choose the profile
+ * picture. Someone with no portfolio yet gets one on their first upload (POST /me/portfolio).
  */
 export default function ManageGallery() {
   const { user, token } = useSession();
-  // /me's profileGalleryId (requested of the API), else my portfolio gallery.
-  const galleries = useApi<Page<Gallery>>(user && !user.profileGalleryId ? `/galleries?userId=${user.id}&perPage=50` : null);
-  const galleryId = user?.profileGalleryId ?? galleries.data?.data.find((g) => g.kind === 'portfolio')?.id ?? null;
+  const me = useApi<{ data: Profile }>(user ? `/people/${encodeURIComponent(user.username)}` : null);
+  const [createdId, setCreatedId] = useState<number | null>(null);
+  const galleryId = createdId ?? me.data?.data.portfolioGalleryId ?? null;
+  // Listed in the gallery's own order.
   const pictures = useApi<Page<Picture>>(galleryId ? `/pictures?galleryId=${galleryId}&perPage=100` : null);
   const profile = useApi<{ data: MyProfile }>('/me/profile');
   const [busy, setBusy] = useState<string | null>(null);
@@ -55,12 +57,19 @@ export default function ManageGallery() {
   const upload = () =>
     run('upload', async () => {
       const picked = await pickPhotos({ multiple: true });
+      if (picked.length === 0) return;
+      let id = galleryId;
+      if (!id) {
+        // 201 created, or 200 when it already exists.
+        id = (await apiFetch<{ data: Gallery }>('/me/portfolio', { method: 'POST', token })).data.id;
+        setCreatedId(id);
+      }
       for (const file of picked) {
         const form = new FormData();
         await appendFile(form, 'file', file);
-        await apiUpload(`/galleries/${galleryId}/pictures`, form, { token });
+        await apiUpload(`/galleries/${id}/pictures`, form, { token });
       }
-      if (picked.length > 0) await pictures.reload();
+      if (galleryId) await pictures.reload();
     });
 
   const remove = (p: Picture) =>
@@ -86,16 +95,16 @@ export default function ManageGallery() {
       profile.setData(res);
     });
 
-  const failed = galleries.error ?? pictures.error;
+  const failed = me.error ?? pictures.error;
   const profilePictureId = profile.data?.data.pictureId;
 
   return (
     <Chrome>
       <ScreenTitle title="Manage gallery" />
       {failed ? (
-        <ErrorState error={failed} onRetry={() => (galleries.error ? galleries.reload() : pictures.reload())} />
-      ) : !galleryId || !pictures.data ? (
-        galleries.data && !galleryId ? <Empty>{"You don't have a profile gallery yet."}</Empty> : <Loading />
+        <ErrorState error={failed} onRetry={() => (me.error ? me.reload() : pictures.reload())} />
+      ) : !me.data || (galleryId && !pictures.data) ? (
+        <Loading />
       ) : (
         <FlatList
           data={items}

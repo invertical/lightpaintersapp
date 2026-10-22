@@ -39,14 +39,17 @@ Conventions are the API's own: problem+json errors, `{data, links, meta}` lists 
 
 - `GET /people/{username}`: also return `otherName`, `description` (plain text),
   `orgs [{id, slug, name}]`, `feedPostCount`, `canMessage` and `isMe`.
-- `GET /me`: also return `profileGalleryId`, `canSubmitLinks`, `canAddEvents` and
-  `canCreateOrgs`.
+- `GET /me`: also return `canPostToFeed`, `canMessageMembers`, `canSubmitLinks`,
+  `canAddEvents` and `canCreateOrgs`. (Live.)
+- The managed gallery is `GET /people/{username}`'s `portfolioGalleryId`. When it is
+  null, `POST /me/portfolio` creates it (201, or 200 when it exists). (Live.)
 - `PATCH /me/profile` already exists. The app sends `firstName`, `lastName`,
   `otherName`, `bio`, `pictureId`, `tags {slug: [names]}`, `countryId`, `stateId`,
   `city` and `username`.
-- `GET /me/links` → `{data: [{id, typeId, type, url}], meta: {types: [{id, name}]}}`.
-  `POST {typeId, url}`. `PATCH /me/links/{id} {typeId, url}`. `DELETE /me/links/{id}`.
-  `PUT /me/links/order {ids: []}`. At most 20 links, as on `/account/links`.
+- `GET /me/links` → `{data: [{id, typeId, type, value, url}], meta: {types: [{id, name,
+  instructions}]}}`. `value` is what was typed; `url` is where it resolves. `POST {typeId,
+  url}`. `PATCH /me/links/{id} {typeId, url}`. `DELETE /me/links/{id}`. At most 20.
+  There is no custom order: links are listed by type, as on the website. (Live.)
 - `PUT /galleries/{id}/order {pictureIds: []}`: the gallery manager may call it.
 
 ## Links
