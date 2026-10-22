@@ -5,6 +5,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Chrome } from '@/components/chrome';
+import { DateField } from '@/components/date-field';
 import { Select, type Option } from '@/components/select';
 import { Button, Card, ErrorLine, Field, ScreenTitle, ui } from '@/components/ui';
 import { Colors, Font, Radius, Spacing } from '@/constants/theme';
@@ -103,9 +104,9 @@ export default function NewEvent() {
     setProblem(null);
     if (!chosenType) return setProblem('Choose the kind of event.');
     if (!f.name.trim()) return setProblem('Give the event a name.');
-    if (!DATE.test(f.startDate) || !TIME.test(f.startTime)) return setProblem('Enter when it starts, like 2026-11-14 and 19:00.');
+    if (!DATE.test(f.startDate) || !TIME.test(f.startTime)) return setProblem('Choose the date and time it starts.');
     if ((f.endDate || f.endTime) && (!DATE.test(f.endDate) || !TIME.test(f.endTime))) {
-      return setProblem('Enter when it ends, like 2026-11-14 and 22:00, or leave both empty.');
+      return setProblem('Choose both the end date and time, or neither.');
     }
     setBusy(true);
     setError(null);
@@ -172,18 +173,18 @@ export default function NewEvent() {
         <Section title="When">
           <View style={styles.row}>
             <View style={styles.half}>
-              <Field label="Start date" value={f.startDate} onChangeText={set('startDate')} placeholder="YYYY-MM-DD" maxLength={10} error={err('starts')} />
+              <DateField label="Start date" mode="date" value={f.startDate} onChange={set('startDate')} error={err('starts')} />
             </View>
             <View style={styles.half}>
-              <Field label="Start time" value={f.startTime} onChangeText={set('startTime')} placeholder="19:00" maxLength={5} />
+              <DateField label="Start time" mode="time" value={f.startTime} onChange={set('startTime')} />
             </View>
           </View>
           <View style={styles.row}>
             <View style={styles.half}>
-              <Field label="End date (optional)" value={f.endDate} onChangeText={set('endDate')} placeholder="YYYY-MM-DD" maxLength={10} error={err('ends')} />
+              <DateField label="End date (optional)" mode="date" value={f.endDate} onChange={set('endDate')} error={err('ends')} />
             </View>
             <View style={styles.half}>
-              <Field label="End time" value={f.endTime} onChangeText={set('endTime')} placeholder="22:00" maxLength={5} />
+              <DateField label="End time" mode="time" value={f.endTime} onChange={set('endTime')} />
             </View>
           </View>
           <Select label="Time zone" value={timeZone} options={zones} onChange={setTimeZone} />

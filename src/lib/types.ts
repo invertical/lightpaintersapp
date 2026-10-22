@@ -23,6 +23,7 @@ export type User = {
   profileGalleryId?: number | null;
   canSubmitLinks?: boolean;
   canAddEvents?: boolean;
+  canCreateOrgs?: boolean;
 };
 
 export type Person = {

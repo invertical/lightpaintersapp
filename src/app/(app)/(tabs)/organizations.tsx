@@ -6,15 +6,12 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Column } from '@/components/chrome';
 import { PagedList } from '@/components/paged-list';
 import { Avatar, Button, Heading, ui } from '@/components/ui';
-import { SITE_URL } from '@/constants/api';
 import { Colors, Font, Spacing } from '@/constants/theme';
-import { openUrl } from '@/lib/format';
 import type { Org } from '@/lib/types';
 import { usePaged } from '@/lib/use-api';
 
 /**
- * Organizations: a header, Add an organization (the website's form — creating and running
- * an org stays on the web for now), then every org A to Z.
+ * Organizations: a header, Add an organization, then every org A to Z.
  */
 export default function Organizations() {
   const list = usePaged<Org>('/groups', { sort: 'name' }, 100);
@@ -33,7 +30,7 @@ export default function Organizations() {
               icon={Plus}
               size="sm"
               variant="secondary"
-              onPress={() => openUrl(`${SITE_URL}/groups/new`)}
+              onPress={() => router.push('/orgs/new')}
               style={styles.add}
             />
           </View>
