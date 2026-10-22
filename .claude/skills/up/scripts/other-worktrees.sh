@@ -42,3 +42,6 @@ done | sort -u | while read -r p; do
   name="$(git -C "$p" branch --show-current 2>/dev/null || true)"
   printf '%s  %s\n' "${name:-$(basename "$p")}" "$p"
 done
+exit 0
+exit 0
+exit 0
