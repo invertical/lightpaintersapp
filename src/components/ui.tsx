@@ -4,7 +4,7 @@
  */
 import { Image } from 'expo-image';
 import { ChevronLeft, UserRound, type LucideIcon } from 'lucide-react-native';
-import type { ReactNode, Ref } from 'react';
+import type { ComponentRef, ReactNode, Ref } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -95,7 +95,7 @@ export function IconButton({
   );
 }
 
-type FieldProps = TextInputProps & { label: string; error?: string | null; hint?: string; ref?: Ref<TextInput> };
+type FieldProps = TextInputProps & { label: string; error?: string | null; hint?: string; ref?: Ref<ComponentRef<typeof TextInput>> };
 
 export function Field({ label, error, hint, style, multiline, ...input }: FieldProps) {
   return (

@@ -4,16 +4,13 @@ import { BottomBar } from '@/components/bottom-bar';
 import { TopBar } from '@/components/top-bar';
 import { Colors } from '@/constants/theme';
 
-/** Artists, Organizations, Feed, Links, Events, under the shared top bar. Feed is home. */
+/** Artists, Organizations, Feed, Links, Events, under the shared top bar. Feed is home: `/` redirects to it. */
 export default function TabsLayout() {
   return (
     <Tabs
-      initialRouteName="feed"
       backBehavior="history"
       screenOptions={{ header: () => <TopBar />, sceneStyle: { backgroundColor: Colors.background } }}
-      tabBar={({ state, navigation }) => (
-        <BottomBar active={state.routes[state.index]?.name} onSelect={(name) => navigation.navigate(name)} />
-      )}>
+      tabBar={({ state }) => <BottomBar active={state.routes[state.index]?.name} />}>
       <Tabs.Screen name="artists" />
       <Tabs.Screen name="organizations" />
       <Tabs.Screen name="feed" />

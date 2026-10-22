@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { ChevronLeft } from 'lucide-react-native';
-import { useRef, useState } from 'react';
+import { useRef, useState, type ComponentRef } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Button, ErrorLine, Field, IconButton, TextButton } from '@/components/ui';
@@ -387,8 +387,8 @@ function ChooseStep({ stage, error, busy, advance }: StepProps & { stage: Extrac
 }
 
 function SignUpStep({ stage, error, setError, busy, advance }: StepProps & { stage: Extract<SignInStep, { step: 'sign-up' }> }) {
-  const lastRef = useRef<TextInput>(null);
-  const emailRef = useRef<TextInput>(null);
+  const lastRef = useRef<ComponentRef<typeof TextInput>>(null);
+  const emailRef = useRef<ComponentRef<typeof TextInput>>(null);
   const [firstName, setFirstName] = useState(stage.firstName ?? '');
   const [lastName, setLastName] = useState(stage.lastName ?? '');
   const [email, setEmail] = useState(stage.suggestedEmail ?? '');
