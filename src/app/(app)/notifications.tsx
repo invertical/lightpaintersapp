@@ -13,12 +13,22 @@ import type { AppNotification } from '@/lib/types';
 import { useNotificationsUnread } from '@/lib/unread';
 import { usePaged } from '@/lib/use-api';
 
+/** The website's own one-segment paths (routes/web.php), which are never usernames. */
+const SITE_PAGES = new Set([
+  'login', 'logout', 'create-account', 'forgot-password', 'verify-email', 'artists', 'groups', 'tags', 'people',
+  'galleries', 'pictures', 'events', 'links', 'feed', 'membership', 'sponsors', 'donate', 'checkout', 'images',
+  'tutorials', 'pages', 'sitemap.xml', 'account', 'messages', 'notifications', 'admin', 'about', 'terms',
+  'privacy', 'cookies', 'kaleidoscopes', 'group-shoot-etiquette',
+]);
+
 /**
  * Where a notification goes in the app: its `link` when the API names one, else its
  * website URL — a profile, a feed post, an org or a conversation have screens here;
  * anything else opens in the browser.
  */
 function openTarget(n: AppNotification) {
+  // A comment on my post (type "feed_comment"). Tag requests ("tag_requests") and
+  // everything else follow their URL: tag approval is on the website for now.
   if (n.link?.kind === 'feed_post' && n.link.id) {
     return router.push({ pathname: '/feed/[id]', params: { id: String(n.link.id) } });
   }
@@ -36,8 +46,13 @@ function openTarget(n: AppNotification) {
   if (chat) return router.push({ pathname: '/messages/[id]', params: { id: chat[1] } });
   const org = path.match(/^\/groups\/([a-z0-9-]+)\/?$/);
   if (org && org[1] !== 'new') return router.push({ pathname: '/orgs/[slug]', params: { slug: org[1] } });
+  if (/^\/messages\/?$/.test(path)) return router.push('/messages');
+  if (/^\/feed\/?$/.test(path)) return router.push('/feed');
+  // lightpainters.com/{username} — but not one of the site's own top-level pages.
   const person = path.match(/^\/([A-Za-z0-9_.-]+)\/?$/);
-  if (person) return router.push({ pathname: '/people/[username]', params: { username: person[1] } });
+  if (person && !SITE_PAGES.has(person[1].toLowerCase())) {
+    return router.push({ pathname: '/people/[username]', params: { username: person[1] } });
+  }
   openUrl(url);
 }
 

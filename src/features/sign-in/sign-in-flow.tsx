@@ -8,6 +8,7 @@ import { Colors, Font, Radius, Spacing } from '@/constants/theme';
 import { ApiError, errorMessage } from '@/lib/api';
 import { useSession, type SignInPath, type SignInStep } from '@/lib/session';
 import { PROVIDERS, ProviderCancelled, ProviderUnavailable, providerCredential, type Provider } from '@/lib/sign-in-providers';
+import { useApi } from '@/lib/use-api';
 
 /** The server's own test for "this is a phone number" (SignInFlow::start). */
 const PHONE_SHAPE = /^[+\d(][\d\s().-]{6,}$/;
@@ -42,7 +43,7 @@ type Busy = SignInPath | Provider | null;
 /**
  * The website's step-by-step sign-in (POST /auth/*, copied from the Multipass app): one
  * field for an email, a phone number or a username, then whatever that needs. Google,
- * Apple and Facebook sit below it.
+ * Apple and Facebook sit below it, those the server accepts (GET /auth/providers).
  *
  *   identify → password | email-code | sms-code → (choose-account) → (sign-up)
  *
@@ -162,6 +163,9 @@ function IdentifyStep({
   onProvider: (provider: Provider) => void;
 }) {
   const create = mode === 'create';
+  // Only the providers this server accepts (GET /auth/providers); none while it has no client ids.
+  const accepted = useApi<{ data: Provider[] }>('/auth/providers');
+  const providers = PROVIDERS.filter((p) => accepted.data?.data.includes(p.id));
   return (
     <>
       <Title
@@ -188,22 +192,26 @@ function IdentifyStep({
       />
       <Button label="Continue" onPress={onContinue} disabled={identifier.trim() === '' || busy !== null} busy={busy === 'start'} />
 
-      <View style={styles.or}>
-        <View style={styles.rule} />
-        <Text style={styles.orText}>or</Text>
-        <View style={styles.rule} />
-      </View>
-      <View style={styles.providers}>
-        {PROVIDERS.map((p) => (
-          <Button
-            key={p.id}
-            variant="secondary"
-            label={busy === p.id ? 'One moment…' : `Continue with ${p.name}`}
-            onPress={() => onProvider(p.id)}
-            disabled={busy !== null}
-          />
-        ))}
-      </View>
+      {providers.length > 0 ? (
+        <>
+          <View style={styles.or}>
+            <View style={styles.rule} />
+            <Text style={styles.orText}>or</Text>
+            <View style={styles.rule} />
+          </View>
+          <View style={styles.providers}>
+            {providers.map((p) => (
+              <Button
+                key={p.id}
+                variant="secondary"
+                label={busy === p.id ? 'One moment…' : `Continue with ${p.name}`}
+                onPress={() => onProvider(p.id)}
+                disabled={busy !== null}
+              />
+            ))}
+          </View>
+        </>
+      ) : null}
     </>
   );
 }

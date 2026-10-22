@@ -9,8 +9,11 @@ export type User = {
   username: string;
   firstName: string;
   lastName: string;
+  /** Null when the account has no real email yet. */
   email: string | null;
   emailVerified: boolean;
+  /** Every account needs a confirmed email; true until it has one. */
+  needsEmail?: boolean;
   phoneNumber: string | null;
   location: string | null;
   avatarUrl: string | null;

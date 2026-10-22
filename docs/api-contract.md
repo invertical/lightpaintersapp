@@ -1,9 +1,20 @@
 # What the app needs from the v2 API
 
-The app calls the LightPainters v2 API (`app/Api/V2` in the Laravel repo). This file
-lists the endpoints and fields it uses that the API does **not** have yet (as of
-2026-10-22), in the shapes the app is coded against. Where the API picks a different
-shape, change the app to match (`src/lib/types.ts` holds the types).
+The app calls the LightPainters v2 API (`app/Api/V2` in the Laravel repo). This file was
+the request list sent to the API session on 2026-10-22. **Every item below is live as of
+that day**, with the changes noted (the authoritative reference is now
+`app/Api/V2/README.md` and `/v2/docs`). Changes the API made from this list:
+
+- The managed gallery is `portfolioGalleryId` (from `GET /people/{username}`), created
+  with `POST /me/portfolio`.
+- `/me/links` has no custom order; items carry `value` (what was typed) and `url`
+  (where it resolves).
+- The event form's org picker is `GET /me/groups?relation=managing`.
+- `GET /me` returns `email: null` for an account without one, and `needsEmail`.
+- `GET /auth/providers` lists the social providers the server accepts (none until their
+  client ids are set: `GOOGLE_APP_CLIENT_IDS`, `APPLE_APP_CLIENT_IDS`,
+  `FACEBOOK_APP_CLIENT_IDS`).
+- There is no `/groups/slug-suggestion`; the server picks a free address when none is sent.
 
 Conventions are the API's own: problem+json errors, `{data, links, meta}` lists with
 `?page` and `?perPage`, bearer tokens.

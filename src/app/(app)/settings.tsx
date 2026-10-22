@@ -8,7 +8,7 @@ import { Button, ScreenTitle } from '@/components/ui';
 import { API_URL, SITE_URL } from '@/constants/api';
 import { Colors, Font, Spacing } from '@/constants/theme';
 import { openUrl } from '@/lib/format';
-import { realEmail, useSession } from '@/lib/session';
+import { useSession } from '@/lib/session';
 
 /**
  * Settings: the account at a glance, the profile screens, and the account pages that are
@@ -24,7 +24,7 @@ export default function Settings() {
         <Text style={styles.group}>Account</Text>
         <MenuRow label="Name" value={user ? `${user.firstName} ${user.lastName}`.trim() : null} />
         <MenuRow label="Username" value={user ? `@${user.username}` : null} />
-        <MenuRow label="Email" value={realEmail(user) ?? 'None'} />
+        <MenuRow label="Email" value={user?.email ?? 'None'} />
         {user?.phoneNumber ? <MenuRow label="Phone" value={user.phoneNumber} /> : null}
 
         <Text style={styles.group}>Profile</Text>
