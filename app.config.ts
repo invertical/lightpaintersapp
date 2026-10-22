@@ -29,5 +29,5 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ]);
   }
 
-  return { ...config, name: config.name ?? 'LightPainters', slug: config.slug ?? 'lightpaintersapp', plugins };
+  return { ...config, name: config.name ?? 'LightPainters', slug: config.slug ?? 'lightpainters', plugins };
 };

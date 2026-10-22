@@ -1,7 +1,8 @@
 {
   "expo": {
     "name": "LightPainters",
-    "slug": "lightpaintersapp",
+    "slug": "lightpainters",
+    "owner": "lightpainters",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -23,7 +24,10 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.lightpainters.app"
+      "package": "com.lightpainters.app",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static",
@@ -52,6 +56,18 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "91a58b5e-f2a2-4894-8097-66e999dde3b2"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/91a58b5e-f2a2-4894-8097-66e999dde3b2"
     }
   }
 }
