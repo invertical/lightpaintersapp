@@ -1,5 +1,4 @@
 import * as ImagePicker from 'expo-image-picker';
-import * as WebBrowser from 'expo-web-browser';
 import { Linking, Platform } from 'react-native';
 
 import type { PickedFile } from '@/lib/form-file';
@@ -67,14 +66,13 @@ export function pictureProcessing(picture: Pick<Picture, 'images'>) {
   return !picture.images.some((i) => i.format !== 'source');
 }
 
-/** Open a link outside the app: web pages in the in-app browser, anything else by the OS. */
+/**
+ * Open a link outside the app: web pages in the phone's own browser (Safari, Chrome), not
+ * an in-app one, and anything else (mailto:, tel:) by the OS. On web, a new tab.
+ */
 export async function openUrl(url: string) {
-  if (/^https?:\/\//i.test(url)) {
-    if (Platform.OS === 'web') {
-      window.open(url, '_blank', 'noopener');
-      return;
-    }
-    await WebBrowser.openBrowserAsync(url);
+  if (Platform.OS === 'web' && /^https?:\/\//i.test(url)) {
+    window.open(url, '_blank', 'noopener');
     return;
   }
   await Linking.openURL(url);

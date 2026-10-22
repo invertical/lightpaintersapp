@@ -122,13 +122,13 @@ function ProfileBody({ profile: p, pictures, picturesLoading }: { profile: Profi
           <Pressable
             accessibilityRole="link"
             onPress={() => router.push({ pathname: '/people/[username]/posts', params: { username: p.username } })}>
-            <Text style={ui.link}>{p.feedPostCount !== undefined ? `${p.feedPostCount} posts` : 'Posts'}</Text>
+            <Text style={ui.link}>{p.feedPostCount === undefined ? 'Feed posts' : `${p.feedPostCount} feed post${p.feedPostCount === 1 ? '' : 's'}`}</Text>
           </Pressable>
           {tags.length > 0 ? (
             <>
               <Text style={ui.muted}>•</Text>
               <Pressable accessibilityRole="button" onPress={() => setTagsOpen(true)}>
-                <Text style={ui.link}>{`${tags.length} tags`}</Text>
+                <Text style={ui.link}>Artist Tags</Text>
               </Pressable>
             </>
           ) : null}
