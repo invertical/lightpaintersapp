@@ -15,6 +15,8 @@ that day**, with the changes noted (the authoritative reference is now
   client ids are set: `GOOGLE_APP_CLIENT_IDS`, `APPLE_APP_CLIENT_IDS`,
   `FACEBOOK_APP_CLIENT_IDS`).
 - There is no `/groups/slug-suggestion`; the server picks a free address when none is sent.
+- The API lives at `/v2` on the website's own host, `https://www.lightpainters.com/v2`.
+  There is no `api.` subdomain (Dan, 2026-10-22).
 
 Conventions are the API's own: problem+json errors, `{data, links, meta}` lists with
 `?page` and `?perPage`, bearer tokens.

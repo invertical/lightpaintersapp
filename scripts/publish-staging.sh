@@ -34,7 +34,7 @@
 # first time) or to add newly registered phones to the provisioning profile.
 set -euo pipefail
 
-API_URL='https://api.lightpainters.com/v2'
+API_URL='https://www.lightpainters.com/v2'
 BRANCH='staging'
 ENVIRONMENT='preview'
 EAS=(npx --yes eas-cli@latest)
