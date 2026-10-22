@@ -1,0 +1,18 @@
+# Expo dev server (Metro + web) in a container. One stack per checkout:
+  # root = project NEWREPO on 8011; an Emdash task = NEWREPO-<task> on 8012.
+  name: ${COMPOSE_PROJECT_NAME:-NEWREPO}
+  services:
+    expo:
+      image: node:22-bookworm
+      working_dir: /app
+      user: "${UID:-1000}:${GID:-1000}"
+      command: npx expo start --port ${EXPO_PORT:-8011}
+      stdin_open: true
+      tty: true
+      environment:
+        EXPO_NO_TELEMETRY: 1
+        REACT_NATIVE_PACKAGER_HOSTNAME: ${PACKAGER_HOST:-localhost}
+      ports:
+        - "${EXPO_PORT:-8011}:${EXPO_PORT:-8011}"
+      volumes:
+        - .:/app
