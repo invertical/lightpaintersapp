@@ -1,7 +1,8 @@
+import * as Crypto from 'expo-crypto';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { ImagePlus, X } from 'lucide-react-native';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Chrome } from '@/components/chrome';
@@ -26,6 +27,8 @@ export default function NewPost() {
   const [isAdult, setIsAdult] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // One per draft: a retry after a dropped connection returns the same post, never a second one.
+  const clientPostId = useRef(Crypto.randomUUID());
 
   async function add() {
     const picked = await pickPhotos({ multiple: true });
@@ -40,6 +43,7 @@ export default function NewPost() {
       const form = new FormData();
       form.append('text', text.trim());
       form.append('isAdult', isAdult ? '1' : '0');
+      form.append('clientPostId', clientPostId.current);
       for (const p of pictures) await appendFile(form, 'pictures[]', p);
       const res = await apiUpload<{ data: FeedPost }>('/feed', form, { token });
       router.replace({ pathname: '/feed/[id]', params: { id: String(res.data.id) } });

@@ -187,6 +187,8 @@ export type AppNotification = {
   body: string | null;
   url: string | null;
   icon: string | null;
+  /** Where it points in the app, when the API knows (e.g. kind "feed_post"). */
+  link?: { kind: string; id: number | null } | null;
   read: boolean;
   readAt: string | null;
   createdAt: string;

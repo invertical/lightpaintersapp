@@ -14,10 +14,15 @@ import { useNotificationsUnread } from '@/lib/unread';
 import { usePaged } from '@/lib/use-api';
 
 /**
- * Where a notification's website link goes in the app: a profile, a feed post, an org or
- * a conversation have screens here; anything else opens in the browser.
+ * Where a notification goes in the app: its `link` when the API names one, else its
+ * website URL — a profile, a feed post, an org or a conversation have screens here;
+ * anything else opens in the browser.
  */
-function openTarget(url: string | null) {
+function openTarget(n: AppNotification) {
+  if (n.link?.kind === 'feed_post' && n.link.id) {
+    return router.push({ pathname: '/feed/[id]', params: { id: String(n.link.id) } });
+  }
+  const url = n.url;
   if (!url) return;
   let path: string;
   try {
@@ -48,7 +53,7 @@ export default function Notifications() {
       badge.setUnread(Math.max(0, (badge.unread ?? 1) - 1));
       apiFetch(`/me/notifications/${n.id}`, { method: 'PATCH', body: { read: true }, token }).catch(() => {});
     }
-    openTarget(n.url);
+    openTarget(n);
   }
 
   async function readAll() {

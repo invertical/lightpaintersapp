@@ -56,6 +56,17 @@ export function withQuery(path: string, query?: Query) {
   return `${path}${path.includes('?') ? '&' : '?'}${parts.join('&')}`;
 }
 
+/**
+ * Called when a request that carried a token is refused with 401: the token expired or
+ * was revoked (there is no refresh). The session signs out so the app shows sign-in
+ * instead of an error on every screen.
+ */
+let onUnauthorized: (() => void) | null = null;
+
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+  onUnauthorized = handler;
+}
+
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
@@ -89,6 +100,7 @@ async function send<T>(path: string, init: { method: string; headers: Record<str
   }
 
   if (!response.ok) {
+    if (response.status === 401 && init.headers.Authorization) onUnauthorized?.();
     const retryAfter = Number(response.headers.get('Retry-After')) || undefined;
     let problem: ProblemDetails & Record<string, unknown>;
     try {

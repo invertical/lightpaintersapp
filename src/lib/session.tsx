@@ -2,7 +2,7 @@ import * as Device from 'expo-device';
 import { createContext, use, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Platform } from 'react-native';
 
-import { ApiError, apiFetch } from '@/lib/api';
+import { ApiError, apiFetch, setUnauthorizedHandler } from '@/lib/api';
 import { clearToken, getToken, setToken } from '@/lib/token-storage';
 import type { User } from '@/lib/types';
 
@@ -116,6 +116,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       }
       setIsLoading(false);
     })();
+  }, []);
+
+  // A token refused mid-session: forget it locally (the server already has).
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      clearToken().catch(() => {});
+      setTokenState(null);
+      setUser(null);
+    });
+    return () => setUnauthorizedHandler(null);
   }, []);
 
   const adopt = useCallback(async (result: TokenResponse) => {
