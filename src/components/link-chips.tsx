@@ -51,7 +51,7 @@ export function LinkChips({ links }: { links: ProfileLink[] }) {
             onPress={() => openUrl(link.url)}
             style={({ pressed }) => [styles.chip, pressed && styles.pressed]}>
             <Icon size={15} color={Colors.foreground} />
-            <Text style={styles.text}>{link.label || link.type}</Text>
+            <Text style={styles.text}>{link.label || link.type.charAt(0).toUpperCase() + link.type.slice(1)}</Text>
           </Pressable>
         );
       })}

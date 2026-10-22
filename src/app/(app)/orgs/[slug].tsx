@@ -75,11 +75,19 @@ function OrgBody({ org, onChange }: { org: Org; onChange: (org: Org) => void }) 
 
   return (
     <ScrollView contentContainerStyle={styles.scroll}>
-      {hero ? <Image source={{ uri: hero }} style={{ width, height: width * 0.5 }} contentFit="cover" /> : null}
+      {hero ? (
+        <Image
+          source={{ uri: hero }}
+          style={{ width, height: width * 0.6, backgroundColor: Colors.card }}
+          contentFit="contain"
+          accessibilityLabel={`${org.name} logo`}
+        />
+      ) : null}
 
       <View style={styles.section}>
         <View style={styles.identity}>
-          <Avatar url={org.logoUrl} size={64} square />
+          {/* The large logo leads the page when there is one; otherwise a placeholder. */}
+          {!hero ? <Avatar url={org.logoUrl} size={64} square /> : null}
           <View style={styles.names}>
             <Text style={styles.name} accessibilityRole="header">
               {org.name}

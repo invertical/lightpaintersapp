@@ -140,12 +140,14 @@ export type Org = OrgSummary & {
   logoUrl: string | null;
   memberCount?: number;
   pageUrl: string;
-  /** Requested. */
+  /** The logo's large variant; groups have no separate cover. */
   imageUrl?: string | null;
   followerCount?: number;
   links?: ProfileLink[];
+  requiresApproval?: boolean;
   isFollowing?: boolean;
   isMember?: boolean;
+  membershipStatus?: 'active' | 'pending' | null;
   canManage?: boolean;
   manageUrl?: string | null;
 };

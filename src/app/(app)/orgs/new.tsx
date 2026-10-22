@@ -45,7 +45,8 @@ export default function NewOrg() {
         method: 'POST',
         body: {
           name: name.trim(),
-          slug: address || undefined,
+          // Left out unless edited: the server then picks a free one (my-group, my-group-2).
+          slug: slugEdited ? address : undefined,
           description: description.trim() || null,
           url: url.trim() || null,
           requiresApproval,
