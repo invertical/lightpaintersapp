@@ -39,6 +39,25 @@ function setFilter(next: FeedFilter) {
   router.setParams({ tag: next.tags.length > 0 ? next.tags.join(',') : undefined, level: next.level === null ? undefined : String(next.level) });
 }
 
+const toTop = new Set<() => void>();
+
+/** The feed listens: scroll back to the first post. */
+export function onFeedTop(listener: () => void) {
+  toTop.add(listener);
+  return () => {
+    toTop.delete(listener);
+  };
+}
+
+/**
+ * The Feed tab: the whole feed, unfiltered, from the top — also when the feed is already
+ * on screen and scrolled down. Empty params replace the filter's.
+ */
+export function openFeedTop() {
+  router.navigate({ pathname: '/feed', params: { tag: '', level: '' } });
+  toTop.forEach((listener) => listener());
+}
+
 /** A tag on a post: the feed filtered to that tag alone (the website's tag links). */
 export function filterFeedByTag(tagId: number) {
   router.navigate({ pathname: '/feed', params: { tag: String(tagId) } });

@@ -3,6 +3,7 @@ import { Building2, CalendarDays, Link2, Newspaper, Palette, type LucideIcon } f
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { openFeedTop } from '@/components/feed-filters';
 import { Colors, Spacing } from '@/constants/theme';
 
 export const TABS: { name: string; href: Href; label: string; icon: LucideIcon }[] = [
@@ -17,6 +18,7 @@ export const TABS: { name: string; href: Href; label: string; icon: LucideIcon }
  * The five-link bottom bar. The tab navigator draws it under its screens; pushed screens
  * (a profile, an org) draw it too, so it is always there. Pressing a tab navigates to its
  * href, which switches tabs, or goes back down the stack to the tab from a pushed screen.
+ * Feed always lands on the top of the unfiltered feed.
  */
 export function BottomBar({ active }: { active?: string }) {
   const insets = useSafeAreaInsets();
@@ -35,7 +37,7 @@ export function BottomBar({ active }: { active?: string }) {
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             accessibilityLabel={tab.label}
-            onPress={() => router.navigate(tab.href)}
+            onPress={() => (tab.name === 'feed' ? openFeedTop() : router.navigate(tab.href))}
             style={styles.tab}>
             <Icon size={22} color={color} />
             <Text style={[styles.label, { color }]} numberOfLines={1}>

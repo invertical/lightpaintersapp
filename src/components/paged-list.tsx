@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, Ref } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View, type ListRenderItem } from 'react-native';
 
 import { Empty, ErrorState, Loading } from '@/components/ui';
@@ -25,6 +25,7 @@ export function PagedList<T>({
   header,
   empty,
   numColumns,
+  listRef,
 }: {
   list: Paged<T>;
   renderItem: ListRenderItem<T>;
@@ -32,10 +33,12 @@ export function PagedList<T>({
   header?: ReactElement;
   empty: string;
   numColumns?: number;
+  listRef?: Ref<FlatList<T>>;
 }) {
   const first = list.items.length === 0;
   return (
     <FlatList
+      ref={listRef}
       data={list.items}
       renderItem={renderItem}
       keyExtractor={keyExtractor}

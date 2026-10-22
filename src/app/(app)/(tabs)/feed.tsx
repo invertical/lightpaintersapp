@@ -1,8 +1,9 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { FlatList } from 'react-native';
 
 import { Column } from '@/components/chrome';
-import { FeedFilters, parseFeedFilter } from '@/components/feed-filters';
+import { FeedFilters, onFeedTop, parseFeedFilter } from '@/components/feed-filters';
 import { FeedPostCard } from '@/components/feed-post-card';
 import { PagedList } from '@/components/paged-list';
 import { usePaged } from '@/lib/use-api';
@@ -11,13 +12,16 @@ import type { FeedPost } from '@/lib/types';
 /**
  * Home: the feed, newest first, loading more as you scroll. Filter at the top narrows it
  * by tags and how it was made (`?tag=1,2&level=30`, like the website's /feed). Every
- * reload (a filter change or pull to refresh) starts the Filter panel closed.
+ * reload (a filter change or pull to refresh) starts the Filter panel closed. The Feed
+ * tab clears the filter and scrolls back to the top.
  */
 export default function Feed() {
   const filter = parseFeedFilter(useLocalSearchParams<{ tag?: string; level?: string }>());
   const filtered = filter.tags.length > 0 || filter.level !== null;
   const list = usePaged<FeedPost>('/feed', { tag: filter.tags, level: filter.level }, 10);
   const [refreshes, setRefreshes] = useState(0);
+  const listRef = useRef<FlatList<FeedPost>>(null);
+  useEffect(() => onFeedTop(() => listRef.current?.scrollToOffset({ offset: 0, animated: true })), []);
   const refresh = () => {
     setRefreshes((n) => n + 1);
     list.refresh();
@@ -26,6 +30,7 @@ export default function Feed() {
     <Column>
       <PagedList
         list={{ ...list, refresh }}
+        listRef={listRef}
         header={<FeedFilters key={`${filter.tags.join(',')}|${filter.level}|${refreshes}`} filter={filter} />}
         keyExtractor={(p) => String(p.id)}
         renderItem={({ item }) => <FeedPostCard post={item} onRemoved={(id) => list.setItems((prev) => prev.filter((p) => p.id !== id))} />}
