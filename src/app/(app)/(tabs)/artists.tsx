@@ -33,13 +33,12 @@ type Params = { q?: string; country?: string; role?: string; technique?: string;
 const ALL = 0;
 
 function useFilterOptions() {
-  // Only countries that have artists in them (requested of the API: ?withArtists=1).
+  // Only countries that have artists in them.
   const countries = useApi<{ data: Country[] }>('/countries?withArtists=1');
-  const roles = useApi<{ data: Tag[] }>('/tags?type=roles&perPage=100');
-  const techniques = useApi<{ data: Tag[] }>('/tags?type=techniques&perPage=100');
-  const subjects = useApi<{ data: Tag[] }>('/tags?type=subjects&perPage=100');
+  const roles = useApi<{ data: Tag[] }>('/tags?type=roles&sort=name&perPage=100');
+  const techniques = useApi<{ data: Tag[] }>('/tags?type=techniques&sort=name&perPage=100');
+  const subjects = useApi<{ data: Tag[] }>('/tags?type=subjects&sort=name&perPage=100');
   const tags = { roles, techniques, subjects };
-  const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name);
 
   return {
     countries: [
@@ -49,7 +48,7 @@ function useFilterOptions() {
     tags: (type: keyof typeof tags) =>
       [
         { value: ALL, label: 'All' },
-        ...[...(tags[type].data?.data ?? [])].sort(byName).map((t) => ({ value: t.id, label: t.name })),
+        ...(tags[type].data?.data ?? []).map((t) => ({ value: t.id, label: t.name })),
       ] as Option<number>[],
   };
 }

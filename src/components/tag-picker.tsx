@@ -25,10 +25,10 @@ export function TagPicker({
 }) {
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState('');
-  const tags = useApi<{ data: Tag[] }>(open ? `/tags?type=${encodeURIComponent(type)}&perPage=100` : null);
+  const tags = useApi<{ data: Tag[] }>(open ? `/tags?type=${encodeURIComponent(type)}&sort=name&perPage=100` : null);
   const options = useMemo(() => {
     const f = filter.trim().toLowerCase();
-    const all = [...(tags.data?.data ?? [])].sort((a, b) => a.name.localeCompare(b.name));
+    const all = tags.data?.data ?? [];
     return f ? all.filter((t) => t.name.toLowerCase().includes(f)) : all;
   }, [tags.data, filter]);
   const chosen = new Set(value.map((v) => v.toLowerCase()));
