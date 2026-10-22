@@ -1,6 +1,6 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { SendHorizontal, Trash2 } from 'lucide-react-native';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { Chrome } from '@/components/chrome';
@@ -9,6 +9,7 @@ import { PagedList } from '@/components/paged-list';
 import { ErrorLine, ErrorState, IconButton, Loading, ScreenTitle } from '@/components/ui';
 import { Colors, Font, Radius, Spacing } from '@/constants/theme';
 import { apiFetch, errorMessage } from '@/lib/api';
+import { pictureProcessing } from '@/lib/format';
 import { useSession } from '@/lib/session';
 import type { Comment, FeedPost } from '@/lib/types';
 import { useApi, usePaged } from '@/lib/use-api';
@@ -22,6 +23,20 @@ export default function FeedPostScreen() {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // A post opened right after it was made has pictures still processing on the server:
+  // look again every 2 seconds until they're ready, for up to a minute.
+  const tries = useRef(0);
+  const processing = post.data?.data.pictures.some(pictureProcessing) ?? false;
+  const { reload } = post;
+  useEffect(() => {
+    if (!processing || tries.current >= 30) return;
+    const timer = setTimeout(() => {
+      tries.current += 1;
+      reload();
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [processing, post.data, reload]);
 
   async function send() {
     const body = text.trim();
@@ -73,7 +88,7 @@ export default function FeedPostScreen() {
               list={comments}
               header={
                 <>
-                  <FeedPostCard post={post.data.data} full />
+                  <FeedPostCard post={post.data.data} full onRemoved={() => (router.canGoBack() ? router.back() : router.replace('/feed'))} />
                   <Text style={styles.heading}>
                     {post.data.data.commentCount === 1 ? '1 comment' : `${post.data.data.commentCount} comments`}
                   </Text>

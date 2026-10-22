@@ -6,6 +6,9 @@ import { useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { Chrome } from '@/components/chrome';
+import { LEVELS } from '@/components/feed-filters';
+import { Select, type Option } from '@/components/select';
+import { TagPicker } from '@/components/tag-picker';
 import { Button, Card, ErrorLine, Field, ScreenTitle, ui } from '@/components/ui';
 import { Colors, Font, Radius, Spacing } from '@/constants/theme';
 import { apiUpload, errorMessage } from '@/lib/api';
@@ -16,14 +19,21 @@ import type { FeedPost } from '@/lib/types';
 
 const MAX_PICTURES = 10;
 
+/** "How was it made?" (FeedPost::PROCESSING_LEVELS); -1 sends none. */
+const LEVEL_CHOICES: Option<number>[] = [{ value: -1, label: 'Not saying' }, ...LEVELS];
+
 /**
- * Add a post to the feed: words, up to ten pictures, and the adult-content flag — the
- * website's feed composer (Livewire\Feed\Feed::post). Words or a picture, at least one.
+ * Add a post to the feed: words, up to ten pictures, tools and techniques, subjects, how
+ * it was made, and the adult-content flag — the website's feed composer
+ * (Livewire\Feed\Feed::post). Words or a picture, at least one.
  */
 export default function NewPost() {
   const { token, user } = useSession();
   const [text, setText] = useState('');
   const [pictures, setPictures] = useState<PickedFile[]>([]);
+  const [techniques, setTechniques] = useState<string[]>([]);
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [level, setLevel] = useState(-1);
   const [isAdult, setIsAdult] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,6 +54,9 @@ export default function NewPost() {
       form.append('text', text.trim());
       form.append('isAdult', isAdult ? '1' : '0');
       form.append('clientPostId', clientPostId.current);
+      for (const name of techniques) form.append('tags[techniques][]', name);
+      for (const name of subjects) form.append('tags[subjects][]', name);
+      if (level >= 0) form.append('processingLevel', String(level));
       for (const p of pictures) await appendFile(form, 'pictures[]', p);
       const res = await apiUpload<{ data: FeedPost }>('/feed', form, { token });
       router.replace({ pathname: '/feed/[id]', params: { id: String(res.data.id) } });
@@ -101,16 +114,18 @@ export default function NewPost() {
         </View>
         <Text style={ui.muted}>Up to {MAX_PICTURES} pictures.</Text>
 
+        <TagPicker type="techniques" label="Tools and Techniques" value={techniques} onChange={setTechniques} />
+        <TagPicker type="subjects" label="Subjects" value={subjects} onChange={setSubjects} />
+        <Select label="How was it made?" value={level} options={LEVEL_CHOICES} onChange={setLevel} />
+        <Text style={ui.muted}>Tags are optional. #hashtags in your text become topics.</Text>
+
         <View style={styles.switchRow}>
-          <View style={styles.switchText}>
-            <Text style={styles.switchLabel}>Adult content</Text>
-            <Text style={ui.muted}>Nudity or other content only for adults who opt in.</Text>
-          </View>
+          <Text style={styles.switchLabel}>Not for Kids</Text>
           <Switch
             value={isAdult}
             onValueChange={setIsAdult}
             trackColor={{ true: Colors.gold, false: Colors.cardRaised }}
-            accessibilityLabel="Adult content"
+            accessibilityLabel="Not for Kids"
           />
         </View>
 
@@ -139,6 +154,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   switchRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
-  switchText: { flex: 1, gap: 2 },
-  switchLabel: { color: Colors.foreground, fontSize: Font.base, fontWeight: '600' },
+  switchLabel: { flex: 1, color: Colors.foreground, fontSize: Font.base, fontWeight: '600' },
 });
