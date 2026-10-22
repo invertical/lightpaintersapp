@@ -52,7 +52,11 @@ function ProfileBody({ profile: p, pictures, picturesLoading }: { profile: Profi
   const [bioClipped, setBioClipped] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const lead = pictures[0] ?? null;
+  // ONE slideshow, as on the website: the chosen profile picture leads it, then the
+  // portfolio without it. No profile picture: no lead, and the avatar stands in.
+  const lead = p.profilePicture ?? null;
+  const portfolio = lead ? pictures.filter((x) => x.id !== lead.id) : pictures;
+  const slides = lead ? [lead, ...portfolio] : portfolio;
   const tags = p.tags.filter((t) => t.status === 'approved');
 
   async function message() {
@@ -167,13 +171,13 @@ function ProfileBody({ profile: p, pictures, picturesLoading }: { profile: Profi
       </Text>
       {picturesLoading ? (
         <Loading />
-      ) : pictures.length === 0 ? (
+      ) : portfolio.length === 0 ? (
         <Text style={[ui.muted, styles.section]}>No pictures yet.</Text>
       ) : (
-        <PictureGrid pictures={pictures} />
+        <PictureGrid pictures={portfolio} />
       )}
 
-      <Lightbox pictures={pictures} index={lightbox} onIndex={setLightbox} />
+      <Lightbox pictures={slides} index={lightbox} onIndex={setLightbox} />
       <TagsSheet name={p.name} tags={tags} open={tagsOpen} onClose={() => setTagsOpen(false)} />
     </ScrollView>
   );

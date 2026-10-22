@@ -74,7 +74,8 @@ export type Profile = Person & {
   portfolioGalleryId: number | null;
   isMember: boolean;
   memberSince: string | null;
-  /** Requested. */
+  /** The picture the person chose to lead their profile (requested of the API). */
+  profilePicture?: Picture | null;
   otherName?: string | null;
   description?: string | null;
   orgs?: OrgSummary[];
