@@ -152,7 +152,7 @@ export default function Conversation() {
           onEndReached={loadOlder}
           onEndReachedThreshold={0.3}
           contentContainerStyle={styles.list}
-          ListFooterComponent={loadingOlder ? <ActivityIndicator color={Colors.gold} style={styles.older} /> : null}
+          ListFooterComponent={loadingOlder ? <ActivityIndicator color={Colors.gold} style={styles.older} /> : undefined}
           ListEmptyComponent={<Text style={styles.empty}>Say hello.</Text>}
           renderItem={({ item }) => (
             <View style={[styles.bubble, item.sender.isMine ? styles.mine : styles.theirs]}>

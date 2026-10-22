@@ -31,7 +31,7 @@ export default function LinkSectionScreen() {
       />
       <PagedList
         list={list}
-        header={current?.description ? <Text style={[ui.muted, styles.lede]}>{current.description}</Text> : null}
+        header={current?.description ? <Text style={[ui.muted, styles.lede]}>{current.description}</Text> : undefined}
         keyExtractor={(l) => String(l.id)}
         renderItem={({ item }) => (
           <Pressable

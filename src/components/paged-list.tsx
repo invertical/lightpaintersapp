@@ -29,7 +29,7 @@ export function PagedList<T>({
   list: Paged<T>;
   renderItem: ListRenderItem<T>;
   keyExtractor: (item: T) => string;
-  header?: ReactElement | null;
+  header?: ReactElement;
   empty: string;
   numColumns?: number;
 }) {
@@ -61,7 +61,7 @@ export function PagedList<T>({
           </View>
         ) : !first && list.error ? (
           <ErrorState error={list.error} onRetry={list.loadMore} />
-        ) : null
+        ) : undefined
       }
       keyboardShouldPersistTaps="handled"
     />

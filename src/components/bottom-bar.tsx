@@ -15,10 +15,10 @@ export const TABS: { name: string; href: Href; label: string; icon: LucideIcon }
 
 /**
  * The five-link bottom bar. The tab navigator draws it under its screens; pushed screens
- * (a profile, an org) draw it too, so it is always there. Pressing a tab from a pushed
- * screen goes back down the stack to that tab.
+ * (a profile, an org) draw it too, so it is always there. Pressing a tab navigates to its
+ * href, which switches tabs, or goes back down the stack to the tab from a pushed screen.
  */
-export function BottomBar({ active, onSelect }: { active?: string; onSelect?: (name: string) => void }) {
+export function BottomBar({ active }: { active?: string }) {
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
   const current = active ?? TABS.find((t) => pathname === t.href || pathname.startsWith(`${t.href}/`))?.name;
@@ -35,7 +35,7 @@ export function BottomBar({ active, onSelect }: { active?: string; onSelect?: (n
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             accessibilityLabel={tab.label}
-            onPress={() => (onSelect ? onSelect(tab.name) : router.navigate(tab.href))}
+            onPress={() => router.navigate(tab.href)}
             style={styles.tab}>
             <Icon size={22} color={color} />
             <Text style={[styles.label, { color }]} numberOfLines={1}>

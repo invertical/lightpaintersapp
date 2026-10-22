@@ -31,7 +31,7 @@ export default function EventTypeScreen() {
       />
       <PagedList
         list={list}
-        header={current?.description ? <Text style={[ui.muted, styles.lede]}>{current.description}</Text> : null}
+        header={current?.description ? <Text style={[ui.muted, styles.lede]}>{current.description}</Text> : undefined}
         keyExtractor={(e) => String(e.id)}
         renderItem={({ item }) => <EventRow event={item} />}
         empty="Nothing coming up. Know of something? Submit it."
