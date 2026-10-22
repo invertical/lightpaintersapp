@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { openTab } from '@/components/bottom-bar';
 import { Avatar, Badge, IconButton } from '@/components/ui';
 import { Colors, Font, Radius, Spacing } from '@/constants/theme';
 import { useSession } from '@/lib/session';
@@ -13,7 +14,7 @@ import { useChatsUnread, useNotificationsUnread } from '@/lib/unread';
 const MENU: { label: string; href: (username: string) => Href }[] = [
   { label: 'View profile', href: (username) => ({ pathname: '/people/[username]', params: { username } }) },
   { label: 'Manage profile', href: () => '/account/profile' },
-  { label: 'Manage gallery', href: () => '/account/gallery' },
+  { label: 'Manage Portfolio', href: () => '/account/gallery' },
   { label: 'My feed posts', href: (username) => ({ pathname: '/people/[username]/posts', params: { username } }) },
   { label: 'Settings', href: () => '/settings' },
   { label: 'About', href: () => '/about' },
@@ -21,7 +22,7 @@ const MENU: { label: string; href: (username: string) => Href }[] = [
 
 /**
  * The signed-in top bar. Left: the logo and the LightPainters word mark (text until there
- * is a word-mark graphic), both to the feed. Right, from the far edge in: the profile
+ * is a word-mark graphic), both to the feed, reloaded and unfiltered like the Feed tab. Right, from the far edge in: the profile
  * picture (its menu), messages, notifications, then + for a new feed post.
  */
 export function TopBar() {
@@ -41,7 +42,7 @@ export function TopBar() {
       <Pressable
         accessibilityRole="link"
         accessibilityLabel="LightPainters home"
-        onPress={() => router.navigate('/feed')}
+        onPress={() => openTab('feed')}
         style={styles.brand}>
         <Image source={require('@/assets/images/logo.png')} style={styles.logo} contentFit="contain" />
         <Text style={styles.wordmark} numberOfLines={1}>

@@ -63,7 +63,7 @@ export default function Artists() {
   const params = useLocalSearchParams<Params>();
   const options = useFilterOptions();
   return (
-    <Column>{params.searched ? <Results params={params} options={options} /> : <SearchForm options={options} />}</Column>
+    <Column tab="artists">{params.searched ? <Results params={params} options={options} /> : <SearchForm options={options} />}</Column>
   );
 }
 

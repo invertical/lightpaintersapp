@@ -29,7 +29,7 @@ export default function Settings() {
 
         <Text style={styles.group}>Profile</Text>
         <MenuRow label="Manage profile" onPress={() => router.push('/account/profile')} />
-        <MenuRow label="Manage gallery" onPress={() => router.push('/account/gallery')} />
+        <MenuRow label="Manage Portfolio" onPress={() => router.push('/account/gallery')} />
 
         <Text style={styles.group}>On the website</Text>
         <MenuRow label="Password and security" external onPress={() => openUrl(`${SITE_URL}/account/security`)} />

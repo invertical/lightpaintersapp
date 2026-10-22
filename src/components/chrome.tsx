@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomBar } from '@/components/bottom-bar';
 import { TopBar } from '@/components/top-bar';
 import { Colors, MaxContentWidth } from '@/constants/theme';
+import { useTabReset } from '@/lib/tab-reset';
 
 /**
  * A pushed screen inside the signed-in app: the same top and bottom bars as the tabs,
@@ -26,11 +27,17 @@ export function Chrome({ children, bottomBar = true }: { children: ReactNode; bo
   );
 }
 
-/** The width cap alone, for tab screens (the tab navigator draws the bars). */
-export function Column({ children }: { children: ReactNode }) {
+/**
+ * The width cap alone, for tab screens (the tab navigator draws the bars). With `tab`, the
+ * screen remounts each time that tab is pressed (openTab), back at its top.
+ */
+export function Column({ children, tab }: { children: ReactNode; tab?: string }) {
+  const reset = useTabReset(tab ?? '');
   return (
     <View style={styles.page}>
-      <View style={styles.column}>{children}</View>
+      <View key={reset} style={styles.column}>
+        {children}
+      </View>
     </View>
   );
 }

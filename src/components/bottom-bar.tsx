@@ -3,22 +3,41 @@ import { Building2, CalendarDays, Link2, Newspaper, Palette, type LucideIcon } f
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { openFeedTop } from '@/components/feed-filters';
 import { Colors, Spacing } from '@/constants/theme';
+import { resetTab } from '@/lib/tab-reset';
 
-export const TABS: { name: string; href: Href; label: string; icon: LucideIcon }[] = [
-  { name: 'artists', href: '/artists', label: 'Artists', icon: Palette },
+/** `filters`: the tab's search params, emptied when the tab is pressed. */
+export const TABS: { name: string; href: string; label: string; icon: LucideIcon; filters?: string[] }[] = [
+  {
+    name: 'artists',
+    href: '/artists',
+    label: 'Artists',
+    icon: Palette,
+    filters: ['searched', 'q', 'country', 'role', 'technique', 'subject', 'sort'],
+  },
   { name: 'organizations', href: '/organizations', label: 'Organizations', icon: Building2 },
-  { name: 'feed', href: '/feed', label: 'Feed', icon: Newspaper },
-  { name: 'links', href: '/links', label: 'Links', icon: Link2 },
+  { name: 'feed', href: '/feed', label: 'Feed', icon: Newspaper, filters: ['tag', 'level'] },
   { name: 'events', href: '/events', label: 'Events', icon: CalendarDays },
+  { name: 'links', href: '/links', label: 'Links', icon: Link2 },
 ];
+
+/**
+ * A tab from the top, unfiltered and freshly loaded — also when it is already on screen.
+ * Empty params replace the filter's; the reset remounts the screen.
+ */
+export function openTab(name: string) {
+  const tab = TABS.find((t) => t.name === name);
+  if (!tab) return;
+  resetTab(tab.name);
+  const params = Object.fromEntries((tab.filters ?? []).map((key) => [key, '']));
+  router.navigate({ pathname: tab.href, params } as Href);
+}
 
 /**
  * The five-link bottom bar. The tab navigator draws it under its screens; pushed screens
  * (a profile, an org) draw it too, so it is always there. Pressing a tab navigates to its
  * href, which switches tabs, or goes back down the stack to the tab from a pushed screen.
- * Feed always lands on the top of the unfiltered feed.
+ * Every tab lands on its top, unfiltered and reloaded (openTab).
  */
 export function BottomBar({ active }: { active?: string }) {
   const insets = useSafeAreaInsets();
@@ -37,7 +56,7 @@ export function BottomBar({ active }: { active?: string }) {
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             accessibilityLabel={tab.label}
-            onPress={() => (tab.name === 'feed' ? openFeedTop() : router.navigate(tab.href))}
+            onPress={() => openTab(tab.name)}
             style={styles.tab}>
             <Icon size={22} color={color} />
             <Text style={[styles.label, { color }]} numberOfLines={1}>
