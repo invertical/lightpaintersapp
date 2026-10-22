@@ -59,6 +59,14 @@ export function pictureUrl(picture: Pick<Picture, 'images'> | null | undefined, 
   return (sorted.find((i) => i.width >= want) ?? sorted[sorted.length - 1])?.url ?? null;
 }
 
+/**
+ * True while the server is still making a new picture's display sizes: a queued job
+ * fills `images` a few seconds after the upload, so a fresh post has none yet.
+ */
+export function pictureProcessing(picture: Pick<Picture, 'images'>) {
+  return !picture.images.some((i) => i.format !== 'source');
+}
+
 /** Open a link outside the app: web pages in the in-app browser, anything else by the OS. */
 export async function openUrl(url: string) {
   if (/^https?:\/\//i.test(url)) {

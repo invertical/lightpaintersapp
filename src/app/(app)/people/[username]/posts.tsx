@@ -28,7 +28,7 @@ export default function PersonPosts() {
         <PagedList
           list={list}
           keyExtractor={(post) => String(post.id)}
-          renderItem={({ item }) => <FeedPostCard post={item} />}
+          renderItem={({ item }) => <FeedPostCard post={item} onRemoved={(id) => list.setItems((prev) => prev.filter((p) => p.id !== id))} />}
           empty={mine ? "You haven't posted to the feed yet." : 'No posts yet.'}
         />
       )}

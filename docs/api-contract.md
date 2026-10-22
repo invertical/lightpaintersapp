@@ -38,6 +38,15 @@ Conventions are the API's own: problem+json errors, `{data, links, meta}` lists 
   post's owner, and staff.
 - `POST /feed`, multipart: `text`, `isAdult` ("1"/"0"), `pictures[]` (up to 10) →
   201 `{data: FeedPostResource}`. Same rules as `Livewire\Feed\Feed::post`.
+- **Built, not merged yet (Laravel `adc3294` on `emdash/eleven-bikes-repeat-pyps4`):** `canDelete` on FeedPostResource
+  (`FeedReactions::canRemove`: the author or an internal admin), and
+  `DELETE /feed/{id}` → 204, the same soft delete as the website's trash can
+  (`FeedReactions::remove`: sets `RemovedDateTime` and `RemovedLoginId`). Anyone else
+  gets 404, like the comment delete.
+- **Built, not merged yet (Laravel `daae41f`, same branch):** `GET /feed/tags?type=techniques|subjects|topics`,
+  paged: the tags used on visible feed posts, most used first, `useCount` = feed uses.
+  The feed's Filter panel (ten per vocabulary, then More). Processing level 50
+  ("Not Light Painting") is new in `FeedPost::PROCESSING_LEVELS`.
 
 ## Artists
 

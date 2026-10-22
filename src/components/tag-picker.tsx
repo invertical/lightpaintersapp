@@ -10,7 +10,7 @@ import { useApi } from '@/lib/use-api';
 
 /**
  * Several tags from one vocabulary: the chosen ones as chips, and Edit opens the whole
- * vocabulary to tick. Names, because that is what PATCH /me/profile takes.
+ * vocabulary to tick. Names, because that is what PATCH /me/profile and POST /feed take.
  */
 export function TagPicker({
   type,

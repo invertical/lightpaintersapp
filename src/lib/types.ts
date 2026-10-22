@@ -125,7 +125,7 @@ export type FeedPost = {
   likedByMe: boolean;
   pageUrl: string;
   createdAt: string;
-  /** Requested. */
+  /** The author and admins (FeedReactions::canRemove). Requested: absent until the API sends it. */
   canDelete?: boolean;
 };
 

@@ -1,12 +1,15 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { MessageSquare } from 'lucide-react-native';
+import { MessageSquare, Trash2 } from 'lucide-react-native';
 import { useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Avatar } from '@/components/ui';
+import { filterFeedByTag } from '@/components/feed-filters';
+import { Avatar, IconButton } from '@/components/ui';
 import { Colors, Font, Radius, Spacing } from '@/constants/theme';
-import { pictureUrl, timeAgo } from '@/lib/format';
+import { apiFetch, errorMessage } from '@/lib/api';
+import { pictureProcessing, pictureUrl, timeAgo } from '@/lib/format';
+import { useSession } from '@/lib/session';
 import { useMeasuredWidth } from '@/lib/use-measured-width';
 import type { FeedPost, Person, Picture } from '@/lib/types';
 
@@ -53,15 +56,22 @@ export function PictureCarousel({ pictures }: { pictures: Picture[] }) {
         showsHorizontalScrollIndicator={false}
         keyExtractor={(p) => String(p.id)}
         onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
-        renderItem={({ item }) => (
-          <Image
-            source={{ uri: pictureUrl(item, width) ?? undefined }}
-            style={{ width, height, backgroundColor: Colors.card }}
-            contentFit="contain"
-            transition={150}
-            accessibilityLabel={item.title ?? item.description ?? 'Light painting'}
-          />
-        )}
+        renderItem={({ item }) =>
+          pictureProcessing(item) ? (
+            <View style={[styles.processing, { width, height }]} accessibilityLabel="Picture processing">
+              <ActivityIndicator color={Colors.gold} />
+              <Text style={styles.processingText}>Processing…</Text>
+            </View>
+          ) : (
+            <Image
+              source={{ uri: pictureUrl(item, width) ?? undefined }}
+              style={{ width, height, backgroundColor: Colors.card }}
+              contentFit="contain"
+              transition={150}
+              accessibilityLabel={item.title ?? item.description ?? 'Light painting'}
+            />
+          )
+        }
       />
       {pictures.length > 1 ? (
         <View style={styles.counter}>
@@ -74,19 +84,44 @@ export function PictureCarousel({ pictures }: { pictures: Picture[] }) {
 
 /**
  * A feed post: the author (to their profile), the pictures, the words, its tags, and the
- * comment count (to the post and its comments). `full` shows the whole text.
+ * comment count (to the post and its comments). `full` shows the whole text. A tag
+ * filters the feed to it; the rest of the body is not a link. Its author
+ * and admins (`canDelete`) get a trash can; the server only marks the post removed, as
+ * the website's does, and `onRemoved` takes it off the screen.
  */
-export function FeedPostCard({ post, full = false }: { post: FeedPost; full?: boolean }) {
+export function FeedPostCard({ post, full = false, onRemoved }: { post: FeedPost; full?: boolean; onRemoved?: (id: number) => void }) {
+  const { token } = useSession();
   const open = () => router.push({ pathname: '/feed/[id]', params: { id: String(post.id) } });
   const tags = post.tags.filter((t) => t.status === 'approved');
+
+  function remove() {
+    const go = async () => {
+      try {
+        await apiFetch(`/feed/${post.id}`, { method: 'DELETE', token });
+        onRemoved?.(post.id);
+      } catch (e) {
+        if (Platform.OS === 'web') window.alert(errorMessage(e));
+        else Alert.alert("Couldn't delete the post", errorMessage(e));
+      }
+    };
+    if (Platform.OS === 'web') {
+      if (window.confirm('Delete this post?')) go();
+      return;
+    }
+    Alert.alert('Delete this post?', undefined, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: go },
+    ]);
+  }
 
   return (
     <View style={styles.card}>
       <View style={styles.head}>
         <AuthorRow person={post.author} when={post.createdAt} />
+        {post.canDelete ? <IconButton icon={Trash2} label="Delete post" size={20} color={Colors.muted} onPress={remove} /> : null}
       </View>
       <PictureCarousel pictures={post.pictures} />
-      <Pressable onPress={full ? undefined : open} disabled={full} style={styles.body} accessibilityRole={full ? undefined : 'link'}>
+      <View style={styles.body}>
         {post.subject ? <Text style={styles.subject}>{post.subject}</Text> : null}
         {post.text ? (
           <Text style={styles.text} numberOfLines={full ? undefined : 4}>
@@ -95,11 +130,23 @@ export function FeedPostCard({ post, full = false }: { post: FeedPost; full?: bo
         ) : null}
         {post.processingLevel ? <Text style={styles.meta}>{post.processingLevel.label}</Text> : null}
         {tags.length > 0 ? (
-          <Text style={styles.tags} numberOfLines={full ? undefined : 2}>
-            {tags.map((t) => t.tag.name).join(' · ')}
-          </Text>
+          <View style={styles.tagRow}>
+            {tags.map((t, i) => (
+              <Pressable
+                key={t.tag.id}
+                accessibilityRole="link"
+                accessibilityLabel={`Show posts tagged ${t.tag.name}`}
+                onPress={() => filterFeedByTag(t.tag.id)}
+                hitSlop={4}>
+                <Text style={styles.tags}>
+                  {i > 0 ? '· ' : ''}
+                  {t.tag.name}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
         ) : null}
-      </Pressable>
+      </View>
       {!full ? (
         <Pressable
           accessibilityRole="button"
@@ -123,8 +170,15 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
     paddingBottom: Spacing.sm,
   },
-  head: { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.md },
-  author: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, alignSelf: 'flex-start' },
+  head: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+  },
+  author: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, alignSelf: 'flex-start', flexShrink: 1 },
   authorText: { flexShrink: 1 },
   authorName: { color: Colors.foreground, fontSize: Font.base, fontWeight: '700' },
   authorMeta: { color: Colors.muted, fontSize: Font.tiny },
@@ -138,10 +192,13 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   counterText: { color: Colors.foreground, fontSize: Font.tiny, fontWeight: '600' },
+  processing: { backgroundColor: Colors.card, alignItems: 'center', justifyContent: 'center', gap: Spacing.sm },
+  processingText: { color: Colors.muted, fontSize: Font.sm },
   body: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.md, gap: Spacing.xs },
   subject: { color: Colors.foreground, fontSize: Font.lg, fontWeight: '700' },
   text: { color: Colors.foreground, fontSize: Font.base, lineHeight: 22 },
   meta: { color: Colors.muted, fontSize: Font.tiny },
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 6, rowGap: 2 },
   tags: { color: Colors.gold, fontSize: Font.tiny },
   actions: {
     flexDirection: 'row',

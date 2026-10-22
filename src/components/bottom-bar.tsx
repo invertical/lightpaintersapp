@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     backgroundColor: Colors.background,
-    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopWidth: 1,
     borderTopColor: Colors.border,
     paddingTop: Spacing.sm,
   },
