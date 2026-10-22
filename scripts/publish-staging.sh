@@ -3,7 +3,7 @@
 # or iOS app when one is needed.
 #
 #   scripts/publish-staging.sh [-m "message"] [--skip-checks] [--apk | --no-apk]
-#                              [--ios | --no-ios] [--yes]
+#                              [--ios | --no-ios] [--yes] [--report-builds]
 #
 # Run it on Dan's Linux machine, from anywhere inside the root checkout
 # (/var/www/personal/lightpainters/lightpaintersapp). Phones get the update in the preview builds
@@ -25,7 +25,8 @@
 # one (an update can't add native code), or when the last one's download link
 # expires within 3 days (installed builds keep working). Otherwise it prints the
 # latest build's link. --no-apk / --no-ios skip that platform; --yes answers yes
-# to every question. A build uses 1 of the Free plan's 15 Android or 15 iOS
+# to every question; --report-builds prints why a build is suggested but never
+# starts one (for /downpush). A build uses 1 of the Free plan's 15 Android or 15 iOS
 # builds a month and runs on Expo's servers; the script doesn't wait for it.
 #
 # iOS builds install only on registered iPhones: add one with
@@ -48,8 +49,9 @@ SKIP_CHECKS=0
 ASSUME_YES=0
 APK='auto'
 IOS='auto'
+REPORT_BUILDS=0
 
-usage() { sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '2,35p' "$0" | sed 's/^# \{0,1\}//'; }
 step() { printf '\n── %s\n' "$*"; }
 die() {
   printf '\npublish-staging: %s\n' "$*" >&2
@@ -84,6 +86,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     -y | --yes)
       ASSUME_YES=1
+      shift
+      ;;
+    --report-builds)
+      REPORT_BUILDS=1
       shift
       ;;
     -h | --help)
@@ -242,6 +248,10 @@ offer_build() {
   echo "It uses 1 of the Free plan's 15 $label builds a month and takes about 10-25 minutes on Expo's servers."
   local answer flag
   flag="$([[ "$platform" == android ]] && echo apk || echo ios)"
+  if [[ $REPORT_BUILDS -eq 1 ]]; then
+    echo "Not started (--report-builds)."
+    return 0
+  fi
   if [[ $ASSUME_YES -eq 0 ]]; then
     read -r -p "Build a new $label app? [y/N] " answer
     if [[ ! "$answer" =~ ^[Yy]$ ]]; then
