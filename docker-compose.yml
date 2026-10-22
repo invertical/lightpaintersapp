@@ -1,6 +1,6 @@
 # Expo dev server (Metro + web) in a container. One stack per checkout:
-  # root = project NEWREPO on 8011; an Emdash task = NEWREPO-<task> on 8012.
-  name: ${COMPOSE_PROJECT_NAME:-NEWREPO}
+  # root = project lightpaintersapp on 8011; an Emdash task = lightpaintersapp-<task> on 8012.
+  name: ${COMPOSE_PROJECT_NAME:-lightpaintersapp}
   services:
     expo:
       image: node:22-bookworm

@@ -1,0 +1,8 @@
+{
+    "preservePatterns": [],
+    "scripts": {
+      "setup": "/var/www/personal/lightpainters/lightpaintersapp/.claude/skills/up/scripts/emdash-setup.sh",
+      "run": "/var/www/personal/lightpainters/lightpaintersapp/.claude/skills/up/scripts/emdash-run.sh",
+      "teardown": "/var/www/personal/lightpainters/lightpaintersapp/.claude/skills/up/scripts/emdash-teardown.sh"
+    }
+  }
