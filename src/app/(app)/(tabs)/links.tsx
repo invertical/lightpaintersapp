@@ -9,7 +9,7 @@ import { useApi } from '@/lib/use-api';
 export default function Links() {
   const sections = useApi<{ data: LinkSection[] }>('/link-sections');
   return (
-    <Column>
+    <Column tab="links">
       <CategoryList
         title="Links"
         lede="Tutorials, tool makers, resources and stores, picked by the community."

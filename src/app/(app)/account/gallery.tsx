@@ -26,7 +26,7 @@ function confirm(title: string, onYes: () => void) {
 }
 
 /**
- * Manage gallery: the pictures on my profile (my portfolio gallery, the website's
+ * Manage Portfolio: the pictures on my profile (my portfolio gallery, the website's
  * /account/pictures). Add, caption, mark adult, reorder, delete, and choose the profile
  * picture. Someone with no portfolio yet gets one on their first upload (POST /me/portfolio).
  */
@@ -100,7 +100,7 @@ export default function ManageGallery() {
 
   return (
     <Chrome>
-      <ScreenTitle title="Manage gallery" />
+      <ScreenTitle title="Manage Portfolio" />
       {failed ? (
         <ErrorState error={failed} onRetry={() => (me.error ? me.reload() : pictures.reload())} />
       ) : !me.data || (galleryId && !pictures.data) ? (

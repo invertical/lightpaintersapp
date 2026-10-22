@@ -123,7 +123,7 @@ function About({ profile, onSaved }: { profile: MyProfile; onSaved: (p: MyProfil
       <Field label="About you" value={bio} onChangeText={setBio} multiline maxLength={10000} error={fieldError(error, 'bio')} />
 
       <Label>Profile picture</Label>
-      <Text style={ui.muted}>Pick one of your pictures. Add pictures in Manage gallery.</Text>
+      <Text style={ui.muted}>Pick one of your pictures. Add pictures in Manage Portfolio.</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pictures}>
         <Pressable
           accessibilityRole="radio"

@@ -9,7 +9,7 @@ import { useApi } from '@/lib/use-api';
 export default function Events() {
   const types = useApi<{ data: EventType[] }>('/event-types');
   return (
-    <Column>
+    <Column tab="events">
       <CategoryList
         title="Events"
         lede="Workshops, meetups, performances, contests and calls for entries around the world."

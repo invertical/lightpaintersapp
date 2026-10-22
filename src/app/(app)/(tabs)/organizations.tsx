@@ -18,7 +18,7 @@ export default function Organizations() {
   const sorted = useMemo(() => [...list.items].sort((a, b) => a.name.localeCompare(b.name)), [list.items]);
 
   return (
-    <Column>
+    <Column tab="organizations">
       <PagedList
         list={{ ...list, items: sorted }}
         header={
